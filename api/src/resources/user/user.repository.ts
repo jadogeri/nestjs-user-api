@@ -1,7 +1,7 @@
 // src/user/user.repository.ts
 import { Repository as BaseRepository, EntityManager } from 'typeorm';
 import { User } from './entities/user.entity';
-import { Repository } from 'src/decorators';
+import { Repository } from '../../decorators/repository.decorator';
 
 @Repository()
 export class UserRepository extends BaseRepository<User> {
