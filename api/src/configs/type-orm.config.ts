@@ -1,7 +1,9 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { SeederOptions } from 'typeorm-extension';
+import UserSeeder from '../resources/user/user.seeder';
+import { UserFactory } from '../resources/user/user.factory';
 import dotenv from 'dotenv';
-import { da } from '@faker-js/faker';
+import { User } from '../resources/user/entities/user.entity';
 
 dotenv.config();
 
@@ -19,10 +21,12 @@ export const dataSourceOptions: TypeOrmModuleOptions & SeederOptions = {
   type: 'sqlite',
   database: databaseFile,
   // {ts,js} matches both source and compiled files
+    // 🔍 Check these paths carefully!
+
   entities: [__dirname + '/../resources/**/*.entity{.ts,.js}'],
   migrations: [__dirname + '/../migrations/*{.ts,.js}'],
-  seeds: [__dirname + '/db/seeds/*{.ts,.js}'],
-  factories: [__dirname + '/db/factories/*{.ts,.js}'],
+  seeds: [UserSeeder],
+  factories: [UserFactory],
   synchronize: !isProduction,
   logging: isProduction === false ? ["query", "error", "schema"] : ["error"],
   
