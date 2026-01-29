@@ -2,12 +2,18 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { SwaggerModule } from '@nestjs/swagger';
 import { swaggerConfig } from './configs/swagger.config';
+import { ValidationPipe } from '@nestjs/common/pipes/validation.pipe';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('api-docs', app, document); // The documentation will be available at http://localhost:3000/api-docs
-
-  await app.listen(process.env.PORT ?? 3000);
+  // This line enables validation for all routes
+  app.useGlobalPipes(new ValidationPipe({
+    whitelist: true, // Strips non-decorated properties
+    forbidNonWhitelisted: true, // Throws error if extra properties are sent
+    transform: true, // Automatically transforms payloads to DTO instances
+  }));
+  await app.listen(process.env.PORT ?? 3001);
 }
 bootstrap();
