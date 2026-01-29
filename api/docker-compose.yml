@@ -1,0 +1,17 @@
+services:
+  api:
+    build: .
+    container_name: nestjs_user_api
+    restart: always
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - DATABASE=/app/data/usersDB.sqlite
+    volumes:
+      # Persistent volume for SQLite data
+      - sqlite_data:/app/data
+
+volumes:
+  sqlite_data:
