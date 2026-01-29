@@ -24,6 +24,12 @@ export const dataSourceOptions: TypeOrmModuleOptions & SeederOptions = {
   seeds: [__dirname + '/db/seeds/*{.ts,.js}'],
   factories: [__dirname + '/db/factories/*{.ts,.js}'],
   synchronize: !isProduction,
-};
+  logging: isProduction === false ? ["query", "error", "schema"] : ["error"],
+  
+  // High-value for performance tuning: logs any query taking longer than 1 second
+  //maxQueryExecutionTime: 1000, 
+  
+  // Use 'formatted-console' for readable SQL in dev
+  logger: "advanced-console", };
 
 export default dataSourceOptions;

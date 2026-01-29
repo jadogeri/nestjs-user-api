@@ -2,24 +2,29 @@ import { faker } from '@faker-js/faker';
 import { Expose } from 'class-transformer';
 import { IsEmail, IsNotEmpty, IsPositive, IsString, Length, Max, Min } from 'class-validator';
 import { Entity, Column, PrimaryGeneratedColumn, BeforeInsert } from 'typeorm';
+import { ApiProperty } from '@nestjs/swagger'; // Added import
 
 @Entity()
 export class User {
+  @ApiProperty({ example: 1, description: 'The unique identifier of the user' })
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({type: 'varchar', length: 100})
-  @IsString()   
+  @ApiProperty({ example: 'John', description: 'The first name of the user' })
+  @Column({ type: 'varchar', length: 100 })
+  @IsString()
   @IsNotEmpty()
   @Length(2, 100)
   firstName: string;
 
-@Column({type: 'varchar', length: 100})
-  @IsString()   
+  @ApiProperty({ example: 'Doe', description: 'The last name of the user' })
+  @Column({ type: 'varchar', length: 100 })
+  @IsString()
   @IsNotEmpty()
   @Length(2, 100)
   lastName: string;
 
+  @ApiProperty({ example: 'john.doe@example.com', description: 'The unique email of the user' })
   @Column({ unique: true, type: 'varchar', length: 150 })
   @IsString()
   @IsNotEmpty()
@@ -27,27 +32,28 @@ export class User {
   @IsEmail()
   email: string;
 
-  @Column({type: 'int'})
+  @ApiProperty({ example: 25, description: 'The age of the user' })
+  @Column({ type: 'int' })
   @IsNotEmpty()
   @IsPositive()
   @Min(0)
   @Max(150)
   age: number;
 
-      // Virtual Property
+  // Virtual Property
+  @ApiProperty({ example: 'John Doe', description: 'The combined first and last name' })
   @Expose()
   get fullName(): string {
     return `${this.firstName} ${this.lastName}`;
-   }
+  }
 
-   @Column()
-    @IsString()
-    ssn: string;
+  @ApiProperty({ example: '000-00-0000', description: 'Social Security Number (Auto-generated)' })
+  @Column()
+  @IsString()
+  ssn: string;
 
-    @BeforeInsert()
-    generateSSN() {
-        // Generates format: 000-00-0000
-        // Faker ensures it is randomized [1.3]
-        this.ssn = faker.string.numeric('###-##-####');
-    }
+  @BeforeInsert()
+  generateSSN() {
+    this.ssn = faker.string.numeric('###-##-####');
+  }
 }

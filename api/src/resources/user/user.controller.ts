@@ -20,35 +20,44 @@ import {
   ApiParam,
   ApiBody
 } from '@nestjs/swagger';
-import { instanceToPlain } from 'class-transformer';
-
 
 @ApiTags('User')
 @Controller('users')
-@UseInterceptors(ClassSerializerInterceptor) // Enables @Expose() for virtual fields
+@UseInterceptors(ClassSerializerInterceptor)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Create a new user' }) // Describes the operation
+  @ApiOperation({ summary: 'Create a new user' })
+  @ApiBody({ 
+    type: CreateUserDto,
+    examples: {
+      example1: {
+        summary: 'Example User',
+        value: { firstName: 'John', lastName: 'Doe', email: 'john.doe@example.com', age: 30 }
+      }
+    }
+  })
   @ApiResponse({
     status: 201,
-    description: 'The user has been successfully created.'
-  }) // Describes the success response
-  @ApiResponse({ status: 400, description: 'Bad Request.' }) // Describes potential errors
-  @ApiBody({ type: CreateUserDto }) // Explicitly defines the request body type
-  create(@Body() createUserDto: CreateUserDto) {
-    const savedUser = this.userService.create(createUserDto);
-
-    const plainUser = instanceToPlain(savedUser);// Transforms entity to plain object, applying @Expose()
-    return plainUser;
+    description: 'The user has been successfully created.',
+    schema: {
+      example: { id: 1, firstName: 'John', lastName: 'Doe', email: 'john@example.com', age: 30 }
+    }
+  })
+  @ApiResponse({ status: 400, description: 'Bad Request.' })
+  async create(@Body() createUserDto: CreateUserDto) {
+    return this.userService.create(createUserDto);
   }
 
   @Get()
   @ApiOperation({ summary: 'Retrieve all users' })
   @ApiResponse({
     status: 200,
-    description: 'A list of all users retrieved successfully.'
+    description: 'A list of all users retrieved successfully.',
+    schema: {
+      example: [{ id: 1, firstName: 'John' }, { id: 2, firstName: 'Jane' }]
+    }
   })
   findAll() {
     return this.userService.findAll();
@@ -56,14 +65,13 @@ export class UserController {
 
   @Get(':id')
   @ApiOperation({ summary: 'Retrieve a user by ID' })
-  @ApiParam({
-    name: 'id',
-    description: 'The ID of the user to retrieve',
-    type: Number
-  }) // Describes the URL parameter
+  @ApiParam({ name: 'id', description: 'The ID of the user', type: Number })
   @ApiResponse({
     status: 200,
-    description: 'The user details retrieved successfully.'
+    description: 'The user details retrieved successfully.',
+    schema: {
+      example: { id: 1, firstName: 'John', lastName: 'Doe' }
+    }
   })
   @ApiResponse({ status: 404, description: 'User not found.' })
   findOne(@Param('id', ParseIntPipe) id: number) {
@@ -73,12 +81,23 @@ export class UserController {
   @Patch(':id')
   @ApiOperation({ summary: 'Update a user by ID' })
   @ApiParam({ name: 'id', description: 'The ID of the user to update' })
+  @ApiBody({ 
+    type: UpdateUserDto,
+    examples: {
+      example1: {
+        summary: 'Partial Update Example',
+        value: { firstName: 'Johnny', age: 31 }
+      }
+    }
+  })
   @ApiResponse({
     status: 200,
-    description: 'The user has been successfully updated.'
+    description: 'The user has been successfully updated.',
+    schema: {
+      example: { id: 1, firstName: 'Johnny', lastName: 'Doe', age: 31 }
+    }
   })
   @ApiResponse({ status: 404, description: 'User not found.' })
-  @ApiBody({ type: UpdateUserDto })
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateUserDto: UpdateUserDto,
@@ -91,9 +110,11 @@ export class UserController {
   @ApiParam({ name: 'id', description: 'The ID of the user to delete' })
   @ApiResponse({
     status: 200,
-    description: 'The user has been successfully deleted.'
+    description: 'The user has been successfully deleted.',
+    schema: {
+      example: { message: 'User 1 deleted successfully' }
+    }
   })
-  @ApiResponse({ status: 404, description: 'User not found.' })
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.userService.remove(id);
   }
