@@ -40,7 +40,7 @@ Run the entire stack using the following command:
 🗄 Database Management
 ----------------------
 
-*   **Migrations:** View the detailed [MIGRATIONS.md](./MIGRATIONS.md) for schema history.
+*   **Migrations:** View the detailed [MIGRATIONS.md](./api/MIGRATIONS.md) for schema history.
 *   **Seeding Data:** Populate the database with initial records:
 
     # Local
