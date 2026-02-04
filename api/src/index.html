@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+  <head>
+    <title>usersDB.sqlite entity specification</title>
+    <meta charset="utf-8" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
+      crossorigin="anonymous"
+    ></script>
+    <style>
+      .bd-aside a {
+        padding: 0.1875rem 0.5rem;
+        margin-top: 0.125rem;
+        margin-left: 0.3125rem;
+        color: var(--bs-body-color);
+      }
+
+      .bd-aside a:hover,
+      .bd-aside a:focus {
+        color: var(--bs-body-color);
+        background-color: rgba(121, 82, 179, 0.1);
+      }
+
+      .bd-aside .active {
+        font-weight: 600;
+        color: var(--bs-body-color);
+      }
+
+      .bd-aside .btn {
+        padding: 0.25rem 0.5rem;
+        font-weight: 600;
+        color: var(--bs-body-color);
+      }
+
+      .bd-aside .btn:hover,
+      .bd-aside .btn:focus {
+        color: var(--bs-body-color);
+        background-color: rgba(121, 82, 179, 0.1);
+      }
+
+      .bd-aside .btn:focus {
+        box-shadow: 0 0 0 1px rgba(121, 82, 179, 0.7);
+      }
+
+      .bd-aside .btn::before {
+        width: 1.25em;
+        line-height: 0;
+        content: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ccc' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M5 14l6-6-6-6'/%3e%3c/svg%3e");
+        transition: transform 0.35s ease;
+
+        /* rtl:raw:
+    transform: rotate(180deg) translateX(-2px);
+    */
+        transform-origin: 0.5em 50%;
+      }
+
+      .bd-aside .btn[aria-expanded="true"]::before {
+        transform: rotate(90deg) /* rtl:ignore */;
+      }
+
+      /* Layout */
+      @media (min-width: 1200px) {
+        html {
+          scroll-padding-top: 4rem;
+        }
+
+        body {
+          display: grid;
+          grid-template-rows: auto;
+          grid-template-columns: 4fr 1fr;
+          gap: 1rem;
+        }
+
+        .bd-header {
+          position: fixed;
+          top: 0;
+          /* rtl:begin:ignore */
+          right: 0;
+          left: 0;
+          /* rtl:end:ignore */
+          z-index: 1030;
+          grid-column: 1 / span 3;
+        }
+
+        .bd-aside,
+        .bd-cheatsheet {
+          padding-top: 4rem;
+        }
+
+        /**
+      * 1. Too bad only Firefox supports subgrids ATM
+      */
+        .bd-cheatsheet,
+        .bd-cheatsheet section,
+        .bd-cheatsheet article {
+          display: inherit; /* 1 */
+          grid-template-rows: auto;
+          grid-template-columns: 4fr;
+          grid-column: 1 / span 2;
+          gap: inherit; /* 1 */
+        }
+
+        .bd-aside {
+          grid-area: 1 / 3;
+          scroll-margin-top: 4rem;
+        }
+
+        .bd-cheatsheet section,
+        .bd-cheatsheet section > h2 {
+          top: 2rem;
+          scroll-margin-top: 2rem;
+        }
+
+        .bd-cheatsheet section > h2::before {
+          position: absolute;
+          /* rtl:begin:ignore */
+          top: 0;
+          right: 0;
+          bottom: -2rem;
+          left: 0;
+          /* rtl:end:ignore */
+          z-index: -1;
+          content: "";
+        }
+
+        .bd-cheatsheet article,
+        .bd-cheatsheet .bd-heading {
+          top: 8rem;
+          scroll-margin-top: 8rem;
+        }
+
+        .bd-cheatsheet .bd-heading {
+          z-index: 1;
+        }
+      }
+
+      .hide {
+        display: none !important;
+      }
+
+      .mermaid-box {
+        height: 60vh;
+        min-height: 600px;
+        width: 85vw;
+      }
+
+      .mermaid {
+        height: 60vh;
+        min-height: 600px;
+        width: 85vw;
+        overflow: hidden;
+
+        svg {
+          height: 100% !important;
+          width: 100% !important;
+        }
+      }
+    </style>
+  </head>
+
+  <body class="bg-body-tertiary">
+    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="/">usersDB.sqlite</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarCollapse"
+          aria-controls="navbarCollapse"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+          <ul class="navbar-nav me-auto mb-2 mb-md-0">
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="/">Entity</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="mermaid.html">ER Diagram</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <aside
+      class="bd-aside sticky-xl-top text-body-secondary align-self-start mb-3 mb-xl-5 px-2"
+    >
+      <section class="entity-version-toc-section toc-usersDB.sqlite-0-0-1">
+        <h2 class="h6 pt-4 pb-3 mb-4 border-bottom">0.0.1</h2>
+        <nav id="toc-0-0-1" class="small">
+          <ul class="list-unstyled">
+            <li class="my-2">
+              <a
+                class="anchor-link"
+                href="#0-0-1-user-User"
+                aria-label="Link to this section: user(User)"
+              >
+                user
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </section>
+    </aside>
+
+    <div class="bd-cheatsheet container-fluid bg-body">
+      <section>
+        <select
+          id="entity-version-select"
+          class="form-select form-select-lg mb-3"
+          aria-label="Large select example"
+        >
+          <option value="usersDB.sqlite-0-0-1" selected>
+            usersDB.sqlite 0.0.1
+          </option>
+        </select>
+      </section>
+
+      <section
+        class="entity-version-content-section content-usersDB.sqlite-0-0-1"
+      >
+        <h2>usersDB.sqlite 0.0.1</h2>
+        <div class="container-fluid">
+          <div class="container-fluid">
+            <h2 id="0-0-1-user-User" class="title is-3">
+              user <small class="text-body-secondary">(User)</small>
+              <a
+                class="anchor-link"
+                href="#0-0-1-user-User"
+                aria-label="Link to this section: user(User)"
+                >#</a
+              >
+            </h2>
+
+            <div class="container-fluid">
+              <table class="table table-striped table-hover caption-top">
+                <caption>
+                  <i class="bi bi-grid-3x2-gap"></i>
+                  user<small class="text-body-secondary">(User)</small>
+                  columns
+                </caption>
+                <thead>
+                  <tr>
+                    <th>&nbsp;</th>
+                    <!-- changing status -->
+                    <th>Database Name</th>
+                    <th>Property Name</th>
+                    <th>Attribute</th>
+                    <th>Type</th>
+                    <th>Nullable</th>
+                    <th>Charset</th>
+                    <th>Comment</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td></td>
+
+                    <td id="0-0-1-user-User-id">
+                      <a
+                        class="anchor-link"
+                        href="#0-0-1-user-User-id"
+                        aria-label="Link to this section: id in user(User)"
+                        >#</a
+                      >
+                      <span>id</span>
+                    </td>
+
+                    <td id="0-0-1-user-User-id">
+                      <a
+                        class="anchor-link"
+                        href="#0-0-1-user-User-id"
+                        aria-label="Link to this section: id in user(User)"
+                        >#</a
+                      >
+                      <span>id</span>
+                    </td>
+
+                    <td>
+                      <span class="badge text-bg-success">PK</span>
+                    </td>
+
+                    <td>
+                      <span>*number</span>
+                    </td>
+
+                    <td></td>
+
+                    <td>
+                      <span></span>
+                    </td>
+
+                    <td>
+                      <span></span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td></td>
+
+                    <td id="0-0-1-user-User-firstName">
+                      <a
+                        class="anchor-link"
+                        href="#0-0-1-user-User-firstName"
+                        aria-label="Link to this section: firstName in user(User)"
+                        >#</a
+                      >
+                      <span>firstName</span>
+                    </td>
+
+                    <td id="0-0-1-user-User-firstName">
+                      <a
+                        class="anchor-link"
+                        href="#0-0-1-user-User-firstName"
+                        aria-label="Link to this section: firstName in user(User)"
+                        >#</a
+                      >
+                      <span>firstName</span>
+                    </td>
+
+                    <td></td>
+
+                    <td>
+                      <span>*varchar(100)</span>
+                    </td>
+
+                    <td></td>
+
+                    <td>
+                      <span></span>
+                    </td>
+
+                    <td>
+                      <span></span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td></td>
+
+                    <td id="0-0-1-user-User-lastName">
+                      <a
+                        class="anchor-link"
+                        href="#0-0-1-user-User-lastName"
+                        aria-label="Link to this section: lastName in user(User)"
+                        >#</a
+                      >
+                      <span>lastName</span>
+                    </td>
+
+                    <td id="0-0-1-user-User-lastName">
+                      <a
+                        class="anchor-link"
+                        href="#0-0-1-user-User-lastName"
+                        aria-label="Link to this section: lastName in user(User)"
+                        >#</a
+                      >
+                      <span>lastName</span>
+                    </td>
+
+                    <td></td>
+
+                    <td>
+                      <span>*varchar(100)</span>
+                    </td>
+
+                    <td></td>
+
+                    <td>
+                      <span></span>
+                    </td>
+
+                    <td>
+                      <span></span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td></td>
+
+                    <td id="0-0-1-user-User-email">
+                      <a
+                        class="anchor-link"
+                        href="#0-0-1-user-User-email"
+                        aria-label="Link to this section: email in user(User)"
+                        >#</a
+                      >
+                      <span>email</span>
+                    </td>
+
+                    <td id="0-0-1-user-User-email">
+                      <a
+                        class="anchor-link"
+                        href="#0-0-1-user-User-email"
+                        aria-label="Link to this section: email in user(User)"
+                        >#</a
+                      >
+                      <span>email</span>
+                    </td>
+
+                    <td>
+                      <span class="badge text-bg-warning">UK</span>
+                    </td>
+
+                    <td>
+                      <span>*varchar(150)</span>
+                    </td>
+
+                    <td></td>
+
+                    <td>
+                      <span></span>
+                    </td>
+
+                    <td>
+                      <span></span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td></td>
+
+                    <td id="0-0-1-user-User-age">
+                      <a
+                        class="anchor-link"
+                        href="#0-0-1-user-User-age"
+                        aria-label="Link to this section: age in user(User)"
+                        >#</a
+                      >
+                      <span>age</span>
+                    </td>
+
+                    <td id="0-0-1-user-User-age">
+                      <a
+                        class="anchor-link"
+                        href="#0-0-1-user-User-age"
+                        aria-label="Link to this section: age in user(User)"
+                        >#</a
+                      >
+                      <span>age</span>
+                    </td>
+
+                    <td></td>
+
+                    <td>
+                      <span>*int</span>
+                    </td>
+
+                    <td></td>
+
+                    <td>
+                      <span></span>
+                    </td>
+
+                    <td>
+                      <span></span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td></td>
+
+                    <td id="0-0-1-user-User-ssn">
+                      <a
+                        class="anchor-link"
+                        href="#0-0-1-user-User-ssn"
+                        aria-label="Link to this section: ssn in user(User)"
+                        >#</a
+                      >
+                      <span>ssn</span>
+                    </td>
+
+                    <td id="0-0-1-user-User-ssn">
+                      <a
+                        class="anchor-link"
+                        href="#0-0-1-user-User-ssn"
+                        aria-label="Link to this section: ssn in user(User)"
+                        >#</a
+                      >
+                      <span>ssn</span>
+                    </td>
+
+                    <td></td>
+
+                    <td>
+                      <span>*string</span>
+                    </td>
+
+                    <td></td>
+
+                    <td>
+                      <span></span>
+                    </td>
+
+                    <td>
+                      <span></span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="mx-auto p-2" style="width: 100%"></div>
+
+            <div class="container-fluid">
+              <table class="table table-striped table-hover caption-top">
+                <caption>
+                  <i class="bi bi-key"></i>
+                  user<small class="text-body-secondary">(User)</small>
+                  indices
+                </caption>
+                <thead>
+                  <tr>
+                    <th>&nbsp;</th>
+                    <!-- changing status -->
+                    <th>Database Name</th>
+                    <th>Property Name</th>
+                    <th>Unique</th>
+                    <th>Columns</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <tr>
+                    <td></td>
+
+                    <td id="0-0-1-user-User-UQ_e12875dfb3b1d92d7d7c5377e22">
+                      <a
+                        class="anchor-link"
+                        href="#0-0-1-user-User-UQ_e12875dfb3b1d92d7d7c5377e22"
+                        aria-label="Link to this section: UQ_e12875dfb3b1d92d7d7c5377e22 in user(User)"
+                        >#</a
+                      >
+                      <span>UQ_e12875dfb3b1d92d7d7c5377e22</span>
+                    </td>
+
+                    <td id="0-0-1-user-User-UQ_e12875dfb3b1d92d7d7c5377e22">
+                      <a
+                        class="anchor-link"
+                        href="#0-0-1-user-User-UQ_e12875dfb3b1d92d7d7c5377e22"
+                        aria-label="Link to this section: UQ_e12875dfb3b1d92d7d7c5377e22 in user(User)"
+                        >#</a
+                      >
+                      <span>UQ_e12875dfb3b1d92d7d7c5377e22</span>
+                    </td>
+
+                    <td>
+                      <span class="badge text-bg-warning">Unique</span>
+                    </td>
+
+                    <td>
+                      <ul style="margin: 0">
+                        <li>email</li>
+                      </ul>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="mx-auto p-4" style="width: 100%"></div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </body>
+
+  <script>
+    var so = document.getElementById("entity-version-select");
+
+    so.addEventListener("change", (e) => {
+      var sectionsForContentHide = document.getElementsByClassName(
+        "entity-version-content-section",
+      );
+      [].forEach.call(sectionsForContentHide, (element) => {
+        element.className = element.className
+          .split(" ")
+          .filter((className) => className !== "hide")
+          .concat(["hide"])
+          .join(" ");
+      });
+
+      var sectionsForTocHide = document.getElementsByClassName(
+        "entity-version-toc-section",
+      );
+      [].forEach.call(sectionsForTocHide, (element) => {
+        element.className = element.className
+          .split(" ")
+          .filter((className) => className !== "hide")
+          .concat(["hide"])
+          .join(" ");
+      });
+
+      var sectionsForContentReveal = document.querySelector(
+        ".content-" + e.target.value,
+      );
+      sectionsForContentReveal.className = sectionsForContentReveal.className
+        .split(" ")
+        .filter((className) => className !== "hide")
+        .join(" ");
+
+      var sectionsForTocReveal = document.querySelector(
+        ".toc-" + e.target.value,
+      );
+      sectionsForTocReveal.className = sectionsForTocReveal.className
+        .split(" ")
+        .filter((className) => className !== "hide")
+        .join(" ");
+    });
+  </script>
+</html>
